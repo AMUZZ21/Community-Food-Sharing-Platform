@@ -65,12 +65,11 @@ This project follows a structured **Software Development Life Cycle (SDLC)** met
 ## 9. Project Documentation
 All design and requirement-related documents are available in the repository:
 
-/docs
- ├── SRS_Document.pdf
- ├── Use_Case_Diagrams
- ├── Sequence_Diagrams
-
-
+/docs/
+- SRS_Document.pdf
+- Use_Case_Diagrams/
+- Sequence_Diagrams/
+  
 ---
 
 ## 10. Technologies (Planned)
