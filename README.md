@@ -67,8 +67,8 @@ All design and requirement-related documents are available in the repository:
 
 /docs/
 - SRS_Document.pdf
-- Use_Case_Diagrams/
-- Sequence_Diagrams/
+- Use_Case_Diagrams
+- Sequence_Diagrams
   
 ---
 
