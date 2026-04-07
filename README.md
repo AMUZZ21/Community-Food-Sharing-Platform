@@ -52,7 +52,7 @@ node server.js
 
 ## 🌐 Live Demo
 
-(Deploy link here)
+https://community-food-sharing-platform.vercel.app/
 
 ---
 
