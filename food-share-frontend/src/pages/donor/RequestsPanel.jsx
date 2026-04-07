@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { sendApprovalNotificationToRecipient } from '../../lib/email'
 import { Check, X, Inbox, User, Package } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -65,6 +66,35 @@ export default function RequestsPanel({ onUpdate }) {
         : `Your request for "${req?.food_listings?.title}" was not approved this time.`,
       related_id: id,
     })
+    // Send email to recipient
+    try {
+     const { data: recipientData } = await supabase
+     .from('users')
+     .select('email, name')
+     .eq('id', req?.recipient_id)
+     .single()
+
+     const { data: listingData } = await supabase
+     .from('food_listings')
+     .select('title, location')
+     .eq('id', req?.listing_id)
+     .single()
+
+      if (recipientData && listingData) {
+        await sendApprovalNotificationToRecipient({
+        recipientEmail: recipientData.email,
+        recipientName: recipientData.name,
+        foodTitle: listingData.title,
+        status,
+        location: listingData.location,
+        donorName: profile.name,
+        donorPhone: profile.phone,
+        })
+      }
+    }
+    catch (emailErr) {
+      console.log('Email failed (non-critical):', emailErr)
+   }
 
     toast.success(status === 'approved' ? 'Request approved!' : 'Request rejected')
     fetchRequests()

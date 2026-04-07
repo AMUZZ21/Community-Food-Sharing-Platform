@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { supabase } from '../../lib/supabase'
+import { sendRequestNotificationToDonor } from '../../lib/email'
 import { X, MapPin, Package, User } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -36,6 +37,30 @@ export default function ClaimModal({ listing, onClose, onSuccess }) {
         message: `${profile.name} has requested ${form.quantity_requested} serving(s) of "${listing.title}".`,
         related_id: listing.id,
       })
+      // Send email to donor
+    try {
+      const { data: donorData } = await supabase
+     .from('users')
+     .select('email, name, phone')
+     .eq('id', listing.donor_id)
+     .single()
+
+      if (donorData) {
+       await sendRequestNotificationToDonor({
+      donorEmail: donorData.email,
+      donorName: donorData.name,
+      recipientName: profile.name,
+      foodTitle: listing.title,
+      quantity: form.quantity_requested,
+      message: form.message,
+      location: listing.location,
+       })
+      }
+    } 
+    catch (emailErr) {
+      console.log('Email failed (non-critical):', emailErr)
+    }
+
 
       toast.success('Request sent! The donor will contact you.')
       onSuccess()
