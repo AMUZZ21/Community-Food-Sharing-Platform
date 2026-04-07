@@ -18,10 +18,16 @@ export default function RecipientDashboard() {
   const fetchData = async () => {
     setLoading(true)
     const { data: reqs } = await supabase
-      .from('requests')
-      .select('*, food_listings(title, location, category, donor_id, users:donor_id(name, phone))')
-      .eq('recipient_id', profile?.id)
-      .order('created_at', { ascending: false })
+  .from('requests')
+  .select(`
+    *,
+    food_listings(
+      title, location, category, donor_id,
+      users:donor_id(name, email, phone)
+    )
+  `)
+  .eq('recipient_id', profile?.id)
+  .order('created_at', { ascending: false })
 
     const { data: notifs } = await supabase
       .from('notifications')
@@ -122,30 +128,55 @@ export default function RecipientDashboard() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }} className="stagger">
                 {filtered.map(r => (
-                  <div key={r.id} className="card" style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 1, minWidth: 200 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                        {statusIcon(r.status)}
-                        <h3 style={{ fontSize: 15, fontFamily: 'var(--font-display)' }}>{r.food_listings?.title}</h3>
-                        {statusBadge(r.status)}
-                      </div>
-                      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13, color: 'var(--muted)' }}>
-                        <span>📍 {r.food_listings?.location}</span>
-                        <span>🍽️ {r.quantity_requested} serving(s)</span>
-                        <span>👤 Donor: {r.food_listings?.users?.name}</span>
-                      </div>
-                      {r.status === 'approved' && r.food_listings?.users?.phone && (
-                        <div style={{ marginTop: 10, padding: '8px 12px', background: 'rgba(90,154,106,0.1)', border: '1px solid rgba(90,154,106,0.2)', borderRadius: 8, fontSize: 13, color: '#7ec98a' }}>
-                          ✅ Approved! Contact donor: 📞 {r.food_listings.users.phone}
-                        </div>
-                      )}
-                      {r.message && <div style={{ marginTop: 8, fontSize: 13, color: 'var(--muted2)', fontStyle: 'italic' }}>Your note: "{r.message}"</div>}
-                    </div>
-                    <div style={{ fontSize: 12, color: 'var(--muted)', whiteSpace: 'nowrap' }}>
-                      {new Date(r.created_at).toLocaleDateString()}
-                    </div>
-                  </div>
-                ))}
+                 <div key={r.id} className="card" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 8 }}>
+                  <div>
+                 <h3 style={{ fontSize: 15, fontFamily: 'var(--font-display)', marginBottom: 6 }}>
+                  {r.food_listings?.title}
+                 </h3>
+                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', fontSize: 13, color: 'var(--muted)' }}>
+                 <span>📍 {r.food_listings?.location}</span>
+                 <span>🍽️ {r.quantity_requested} serving(s)</span>
+                 </div>
+                 </div>
+                   <span className={`badge ${r.status === 'pending' ? 'badge-amber' : r.status === 'approved' ? 'badge-green' : 'badge-red'}`}
+                    style={{ textTransform: 'capitalize' }}>{r.status}</span>
+                   </div>
+
+                 {/* Show donor contact when approved */}
+                {r.status === 'approved' && (
+               <div style={{ background: 'rgba(90,154,106,0.08)', border: '1px solid rgba(90,154,106,0.25)', borderRadius: 10, padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <div style={{ fontSize: 12, color: '#7ec98a', fontWeight: 600, marginBottom: 4 }}>✅ APPROVED — DONOR CONTACT DETAILS</div>
+        <div style={{ fontSize: 13, color: 'var(--cream)', display: 'flex', alignItems: 'center', gap: 8 }}>
+          👤 <strong>{r.food_listings?.users?.name}</strong>
+        </div>
+        {r.food_listings?.users?.email && (
+          <div style={{ fontSize: 13, color: 'var(--cream)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            ✉️ <a href={`mailto:${r.food_listings.users.email}`} style={{ color: 'var(--amber)' }}>{r.food_listings.users.email}</a>
+          </div>
+        )}
+        {r.food_listings?.users?.phone && (
+          <div style={{ fontSize: 13, color: 'var(--cream)', display: 'flex', alignItems: 'center', gap: 8 }}>
+            📞 <a href={`tel:${r.food_listings.users.phone}`} style={{ color: 'var(--amber)' }}>{r.food_listings.users.phone}</a>
+          </div>
+        )}
+        <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 4 }}>
+          📍 Pickup from: {r.food_listings?.location}
+        </div>
+      </div>
+    )}
+
+    {r.message && (
+      <div style={{ fontSize: 13, color: 'var(--muted2)', fontStyle: 'italic' }}>
+        Your note: "{r.message}"
+      </div>
+    )}
+
+    <div style={{ fontSize: 12, color: 'var(--muted)', paddingTop: 6, borderTop: '1px solid var(--border)' }}>
+      {new Date(r.created_at).toLocaleDateString()}
+    </div>
+  </div>
+))}
               </div>
             )}
           </div>
