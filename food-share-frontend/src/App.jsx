@@ -6,7 +6,7 @@ import Landing from './pages/Landing'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Browse from './pages/Browse'
-import DonorDashboard from './pages/donor/DonorDashboard'
+import DonorDashboard from './pages/donor/Donordashboard'
 import RecipientDashboard from './pages/recipient/RecipientDashboard'
 import AdminDashboard from './pages/admin/AdminDashboard'
 
