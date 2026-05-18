@@ -54,12 +54,3 @@ node server.js
 
 https://community-food-sharing-platform.vercel.app/
 
----
-
-## 👩‍💻 Author
-
-Amrutha Duggempudi
-
----
-
-⭐ If you like this project, give it a star!
